@@ -623,7 +623,34 @@
 
   <div id="toastBox"></div>
 
-<script defer>
+<!-- 同步设置弹窗 -->
+<div class="modal-mask" id="syncMask">
+  <div class="modal">
+    <div class="modal-head"><span>🔄 云端同步设置</span><button class="modal-x" id="syncClose">✕</button></div>
+    <div class="modal-body">
+      <p class="sync-tip">开启后，本机数据会按集合实时同步到您自己的同步服务器，手机/电脑输入同一「服务器 + 项目 + 口令」即可自动一致。数据存于您运行的服务器本地。<br>若工作台与同步服务部署在同一地址（服务器托管了前端），「同步服务器地址」留空即可自动同源，无需填写。</p>
+      <label class="sync-row"><span>启用同步</span>
+        <label class="switch"><input type="checkbox" id="syncOn"><span></span></label>
+      </label>
+      <label class="sync-field">同步服务器地址
+        <input type="text" id="syncUrl" placeholder="留空=与当前工作台同源（推荐部署到同一服务器）" style="width:100%">
+      </label>
+      <label class="sync-field">项目名称（多项目隔离）
+        <input type="text" id="syncProj" placeholder="龙飞电气-许昌项目" style="width:100%">
+      </label>
+      <label class="sync-field">同步口令（首次连接即设定，两端须一致）
+        <input type="password" id="syncPass" placeholder="设置一个同步口令" style="width:100%">
+      </label>
+      <div class="sync-status" id="syncStatus">未连接</div>
+      <div class="sync-btns">
+        <button class="btn sm" id="syncSave">保存设置</button>
+        <button class="btn ghost sm" id="syncNow">立即同步</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
 /* ============ 工具 ============ */
 const today = () => new Date().toISOString().slice(0,10);
 const $ = s => document.querySelector(s);
@@ -1200,31 +1227,5 @@ $('#backupFile').onchange=()=>{
 /* 初始化 */
 renderTodos(); renderPlans(); refreshBadges(); renderOverview();
 </script>
-<!-- 同步设置弹窗 -->
-<div class="modal-mask" id="syncMask">
-  <div class="modal">
-    <div class="modal-head"><span>🔄 云端同步设置</span><button class="modal-x" id="syncClose">✕</button></div>
-    <div class="modal-body">
-      <p class="sync-tip">开启后，本机数据会按集合实时同步到您自己的同步服务器，手机/电脑输入同一「服务器 + 项目 + 口令」即可自动一致。数据存于您运行的服务器本地。<br>若工作台与同步服务部署在同一地址（服务器托管了前端），「同步服务器地址」留空即可自动同源，无需填写。</p>
-      <label class="sync-row"><span>启用同步</span>
-        <label class="switch"><input type="checkbox" id="syncOn"><span></span></label>
-      </label>
-      <label class="sync-field">同步服务器地址
-        <input type="text" id="syncUrl" placeholder="留空=与当前工作台同源（推荐部署到同一服务器）" style="width:100%">
-      </label>
-      <label class="sync-field">项目名称（多项目隔离）
-        <input type="text" id="syncProj" placeholder="龙飞电气-许昌项目" style="width:100%">
-      </label>
-      <label class="sync-field">同步口令（首次连接即设定，两端须一致）
-        <input type="password" id="syncPass" placeholder="设置一个同步口令" style="width:100%">
-      </label>
-      <div class="sync-status" id="syncStatus">未连接</div>
-      <div class="sync-btns">
-        <button class="btn sm" id="syncSave">保存设置</button>
-        <button class="btn ghost sm" id="syncNow">立即同步</button>
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
