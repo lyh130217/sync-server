@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龙飞的个人工作台</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --sidebar:#ffffff;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#7c8699;
+    --text-3:#94a3b8;
+    --border:#e9edf4;
+    --input-bg:#fbfcfe;
+    --chip-bg:#eef0f6;
+    --shadow:0 8px 24px rgba(31,41,55,.06);
+    --shadow-hover:0 12px 30px rgba(31,41,55,.12);
+    --primary:#6366f1;
+    --primary-rgb:99,102,241;
+    --logo-start:#6366f1;--logo-end:#8b5cf6;
+    --pbar-start:#6366f1;--pbar-end:#8b5cf6;
+    --plan-start:#8b5cf6;--plan-end:#a78bfa;
+    --acc-bar-start:#ef4444;--acc-bar-end:#f97316;
+    --c-todo:#6366f1;
+    --c-study:#8b5cf6;
+    --c-pomo:#ef4444;
+    --c-acc:#10b981;
+    --c-water:#38bdf8;
+    --c-work:#0ea5e9;
+    --gold:#f5c542;
+    --radius:16px;
+    --sidebar-w:248px;
+  }
+  /* 深色模式 */
+  [data-theme="dark"]{
+    --bg:#0f172a; --sidebar:#1e293b; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --text-3:#94a3b8;
+    --border:#334155; --input-bg:#0f172a; --chip-bg:#334155;
+    --shadow:0 8px 24px rgba(0,0,0,.35); --shadow-hover:0 12px 30px rgba(0,0,0,.5);
+  }
+  /* 中国红 · 红船精神 */
+  [data-theme="red"]{
+    --bg:#FFF8F0;
+    --sidebar:#FFFCFA;
+    --card:#FFFFFF;
+    --text:#4A0404;
+    --muted:#A67C7C;
+    --text-3:#C49A8A;
+    --border:#F5C6C6;
+    --input-bg:#FFF9F5;
+    --chip-bg:#FFF0EB;
+    --shadow:0 8px 24px rgba(180,30,30,.08);
+    --shadow-hover:0 12px 30px rgba(180,30,30,.14);
+    --primary:#C41E3A;
+    --primary-rgb:196,30,58;
+    --logo-start:#C41E3A;--logo-end:#D4A017;
+    --pbar-start:#C41E3A;--pbar-end:#E74C3C;
+    --plan-start:#D35400;--plan-end:#E67E22;
+    --acc-bar-start:#C0392B;--acc-bar-end:#E67E22;
+    --c-todo:#C41E3A;
+    --c-study:#D35400;
+    --c-pomo:#C0392B;
+    --c-acc:#27AE60;
+    --c-water:#2980B9;
+    --c-work:#C41E3A;
+    --gold:#D4A017;
+  }
+  [data-theme="red"] body{
+    background:
+      radial-gradient(ellipse 120% 40% at 25% 0%, rgba(196,30,58,.14) 0%, transparent 55%),
+      radial-gradient(ellipse 100% 35% at 85% 5%, rgba(212,160,23,.10) 0%, transparent 50%),
+      linear-gradient(180deg, #FFF8F0 0%, #FDF2E9 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;
+    display:flex;overflow:hidden;transition:background .3s,color .3s;
+  }
+
+  /* ===== 侧边栏 ===== */
+  .sidebar{
+    width:var(--sidebar-w); min-width:var(--sidebar-w);height:100vh;
+    background:var(--sidebar);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;padding:22px 16px;transition:background .3s,border-color .3s;
+  }
+  .brand{display:flex;align-items:center;gap:12px;padding:6px 10px 22px;}
+  .brand .logo{
+    width:42px;height:42px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,var(--logo-start),var(--logo-end));
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;box-shadow:0 6px 16px rgba(var(--primary-rgb),.35);
+  }
+  .brand .name{font-size:17px;font-weight:700;}
+  .brand .sub{font-size:12px;color:var(--muted);}
+  .nav{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+    cursor:pointer;color:var(--muted);font-size:15px;font-weight:500;
+    position:relative;transition:background .25s,color .25s,transform .15s;user-select:none;
+  }
+  .nav-item .ico{font-size:19px;width:24px;text-align:center;transition:transform .25s;}
+  .nav-item:hover{background:var(--chip-bg);color:var(--text);}
+  .nav-item:hover .ico{transform:scale(1.15);}
+  .nav-item.active{background:linear-gradient(135deg,rgba(var(--primary-rgb),.14),rgba(var(--primary-rgb),.06));color:var(--primary);font-weight:700;}
+  .nav-item.active::before{
+    content:"";position:absolute;left:-16px;top:50%;transform:translateY(-50%);
+    width:4px;height:22px;border-radius:0 4px 4px 0;background:var(--primary);animation:slideIn .3s ease;
+  }
+  @keyframes slideIn{from{height:0;opacity:0}to{height:22px;opacity:1}}
+  .nav-item .badge{
+    margin-left:auto;font-size:12px;background:var(--chip-bg);color:var(--muted);
+    padding:1px 8px;border-radius:20px;min-width:22px;text-align:center;
+  }
+  .nav-item.active .badge{background:var(--primary);color:#fff;}
+  .sidebar-foot{font-size:12px;color:var(--muted);text-align:center;padding-top:14px;border-top:1px solid var(--border);}
+
+  /* ===== 主区 ===== */
+  .main{flex:1;height:100vh;overflow-y:auto;padding:30px 40px 50px;}
+  .topbar{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  .topbar h1{font-size:26px;font-weight:800;letter-spacing:.5px;}
+  .topbar .date{color:var(--muted);font-size:14px;margin-top:4px;}
+  .topbar .hello{font-size:13px;color:var(--primary);font-weight:600;}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .tbtn{
+    border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;
+    padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;
+  }
+  .tbtn:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px);}
+
+  .section{display:none;animation:fadeUp .45s cubic-bezier(.22,1,.36,1);}
+  .section.show{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s,background .3s,border-color .3s;
+  }
+  .card:hover{box-shadow:var(--shadow-hover);}
+  .card-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .card-title .dot{width:10px;height:10px;border-radius:50%;}
+  .card-title .right{margin-left:auto;font-size:13px;font-weight:500;color:var(--muted);}
+
+  .stagger{opacity:0;animation:fadeUp .5s ease forwards;}
+
+  /* ===== 总览 ===== */
+  .ov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:background .3s,border-color .3s;}
+  .stat::after{content:"";position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;opacity:.08;}
+  .stat .label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .stat .num{font-size:30px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;}
+  .stat .num small{font-size:14px;color:var(--muted);font-weight:600;margin-left:3px;}
+  .stat .bar{height:6px;border-radius:6px;background:var(--chip-bg);margin-top:14px;overflow:hidden;}
+  .stat .bar i{display:block;height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.22,1,.36,1);}
+  .stat .sub2{font-size:12px;color:var(--muted);margin-top:8px;}
+  .stat.todo::after{background:var(--c-todo);} .stat.todo .num{color:var(--c-todo);} .stat.todo .bar i{background:var(--c-todo);}
+  .stat.study::after{background:var(--c-study);} .stat.study .num{color:var(--c-study);} .stat.study .bar i{background:var(--c-study);}
+  .stat.pomo::after{background:var(--c-pomo);} .stat.pomo .num{color:var(--c-pomo);} .stat.pomo .bar i{background:var(--c-pomo);}
+  .stat.acc::after{background:var(--c-acc);} .stat.acc .num{color:var(--c-acc);} .stat.acc .bar i{background:var(--c-acc);}
+  .stat.water::after{background:var(--c-water);} .stat.water .num{color:var(--c-water);} .stat.water .bar i{background:var(--c-water);}
+  .stat.focus::after{background:#f59e0b;} .stat.focus .num{color:#f59e0b;} .stat.focus .bar i{background:#f59e0b;}
+  .stat.work::after{background:var(--c-work);} .stat.work .num{color:var(--c-work);} .stat.work .bar i{background:var(--c-work);}
+
+  .ov-row{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:18px;}
+  .donut-wrap{display:flex;align-items:center;gap:24px;}
+  .legend{display:flex;flex-direction:column;gap:10px;font-size:14px;}
+  .legend div{display:flex;align-items:center;gap:8px;color:var(--muted);}
+  .legend b{color:var(--text);font-variant-numeric:tabular-nums;}
+  .legend .sw{width:12px;height:12px;border-radius:3px;}
+  .hc-item{margin-bottom:14px;}
+  .hc-item .ht{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;}
+
+  /* ===== 通用输入 ===== */
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;
+    font-family:inherit;background:var(--input-bg);color:var(--text);outline:none;transition:border .2s,box-shadow .2s,background .3s;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(var(--primary-rgb),.12);}
+  .btn{
+    border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;
+    background:var(--primary);color:#fff;transition:transform .15s,box-shadow .2s,background .2s;box-shadow:0 4px 12px rgba(var(--primary-rgb),.3);
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(var(--primary-rgb),.4);}
+  .btn:active{transform:translateY(0);}
+  .btn.ghost{background:var(--chip-bg);color:var(--text);box-shadow:none;}
+  .btn.ghost:hover{background:var(--border);}
+  .btn.sm{padding:6px 12px;font-size:13px;}
+
+  /* ===== 待办 ===== */
+  .progress-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;color:var(--muted);}
+  .pbar{height:10px;border-radius:10px;background:var(--chip-bg);overflow:hidden;margin-bottom:20px;}
+  .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--pbar-start),var(--pbar-end));width:0;border-radius:10px;transition:width .6s cubic-bezier(.22,1,.36,1);}
+  .todo-list{display:flex;flex-direction:column;gap:10px;}
+  .todo-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);animation:fadeUp .35s ease;transition:background .2s,opacity .3s;}
+  .todo-item:hover{background:var(--input-bg);}
+  .chk{width:22px;height:22px;border-radius:7px;border:2px solid #cbd2e0;flex:none;cursor:pointer;position:relative;transition:background .25s,border-color .25s;}
+  .chk::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);transition:transform .25s;}
+  .todo-item.done .chk{background:var(--c-todo);border-color:var(--c-todo);}
+  .todo-item.done .chk::after{transform:rotate(45deg) scale(1);}
+  .todo-item .txt{flex:1;font-size:15px;transition:color .25s;}
+  .todo-item.done .txt{color:var(--muted);text-decoration:line-through;}
+  .todo-item .del{opacity:0;color:#ef4444;cursor:pointer;padding:4px 8px;border-radius:8px;font-size:13px;transition:opacity .2s,background .2s;}
+  .todo-item:hover .del{opacity:1;}
+  .todo-item .del:hover{background:#fee2e2;}
+  .empty{text-align:center;color:var(--muted);padding:40px;font-size:14px;}
+
+  /* ===== 学习计划 ===== */
+  .plan-item{padding:16px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;animation:fadeUp .35s ease;}
+  .plan-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .plan-item .ttl{font-weight:600;font-size:15px;}
+  .plan-item .val{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .plan-item .pb{height:8px;border-radius:8px;background:var(--chip-bg);overflow:hidden;}
+  .plan-item .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--plan-start),var(--plan-end));width:0;border-radius:8px;transition:width .7s cubic-bezier(.22,1,.36,1);}
+  .plan-item .ops{display:flex;gap:6px;margin-top:10px;}
+  .chip{font-size:12px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--input-bg);cursor:pointer;color:var(--muted);transition:.2s;}
+  .chip:hover{border-color:var(--c-study);color:var(--c-study);}
+
+  /* ===== 番茄时钟 ===== */
+  .pomo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .modes{display:flex;gap:8px;background:var(--chip-bg);padding:5px;border-radius:12px;}
+  .modes button{border:none;background:transparent;padding:8px 16px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);transition:.25s;}
+  .modes button.on{background:var(--card);color:var(--c-pomo);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .ring-box{position:relative;width:260px;height:260px;}
+  .ring-box svg{transform:rotate(-90deg);}
+  .ring-box .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring-box .time{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px;}
+  .ring-box .state{font-size:14px;color:var(--muted);margin-top:4px;}
+  .pomo-ctrls{display:flex;gap:12px;}
+  .pomo-stat{display:flex;gap:30px;margin-top:6px;}
+  .pomo-stat div{text-align:center;}
+  .pomo-stat .n{font-size:24px;font-weight:800;color:var(--c-pomo);}
+  .pomo-stat .l{font-size:12px;color:var(--muted);}
+
+  /* ===== 记账本 ===== */
+  .acc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+  .acc-box{padding:18px;border-radius:14px;color:#fff;text-align:center;}
+  .acc-box.bal{background:linear-gradient(135deg,#6366f1,#8b5cf6);}
+  .acc-box.exp{background:linear-gradient(135deg,#ef4444,#f97316);}
+  .acc-box.inc{background:linear-gradient(135deg,#10b981,#34d399);}
+  .acc-box .l{font-size:13px;opacity:.9;}
+  .acc-box .v{font-size:26px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .cat-quick{display:flex;gap:8px;flex-wrap:wrap;}
+  .cat-quick .chip.on{border-color:var(--c-acc);color:var(--c-acc);background:rgba(16,185,129,.08);}
+  .acc-list{margin-top:8px;display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;}
+  .acc-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:11px;animation:fadeUp .3s ease;}
+  .acc-item .ci{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--chip-bg);flex:none;}
+  .acc-item .meta{flex:1;}
+  .acc-item .meta .t{font-size:14px;font-weight:600;}
+  .acc-item .meta .s{font-size:12px;color:var(--muted);}
+  .acc-item .amt{font-weight:800;font-variant-numeric:tabular-nums;}
+  .acc-item .amt.exp{color:#ef4444;}
+  .acc-item .amt.inc{color:#10b981;}
+  .acc-item .delx{opacity:1;color:#ef4444;cursor:pointer;padding:4px 8px;border-radius:8px;}
+  .acc-item .delx:hover{background:#fee2e2;}
+  .acc-bars{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .acc-bar{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .acc-bar .nm{width:64px;color:var(--muted);}
+  .acc-bar .tb{flex:1;height:14px;background:var(--chip-bg);border-radius:8px;overflow:hidden;}
+  .acc-bar .tb i{display:block;height:100%;background:linear-gradient(90deg,var(--acc-bar-start),var(--acc-bar-end));width:0;transition:width .7s;}
+  .acc-bar .vv{width:70px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+
+  /* ===== 喝水 ===== */
+  .water-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;}
+  .cup-ring{position:relative;width:220px;height:220px;}
+  .cup-ring svg{transform:rotate(-90deg);}
+  .cup-ring .wc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .cup-ring .wc .big{font-size:46px;font-weight:800;color:var(--c-water);}
+  .cup-ring .wc .small{font-size:13px;color:var(--muted);}
+  .cup-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:420px;}
+  .cup{width:34px;height:44px;border:2px solid #bae6fd;border-radius:0 0 10px 10px;border-top:none;position:relative;overflow:hidden;background:#f0f9ff;cursor:pointer;transition:transform .15s;}
+  .cup:hover{transform:translateY(-3px);}
+  .cup .fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#7dd3fc,#38bdf8);height:0;transition:height .5s cubic-bezier(.22,1,.36,1);}
+  .water-log{width:100%;max-width:420px;}
+  .water-log .wl-item{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:8px 0;border-bottom:1px dashed var(--border);}
+  .water-log .wl-item b{color:var(--text);}
+  .switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+  .switch input{width:18px;height:18px;accent-color:var(--c-water);}
+
+  /* ===== 施工管理 ===== */
+  .work-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .mini{background:var(--chip-bg);border-radius:12px;padding:14px;text-align:center;}
+  .mini .n{font-size:22px;font-weight:800;color:var(--c-work);}
+  .mini .l{font-size:12px;color:var(--muted);}
+  .tag{font-size:12px;padding:2px 9px;border-radius:20px;font-weight:600;}
+  .tag.ok{background:rgba(16,185,129,.15);color:#10b981;}
+  .tag.bad{background:rgba(239,68,68,.15);color:#ef4444;}
+  .tag.wait{background:rgba(245,158,11,.18);color:#f59e0b;}
+  .rec-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;}
+  .rec{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--border);border-radius:11px;animation:fadeUp .3s ease;font-size:14px;}
+  .rec .meta{flex:1;}
+  .rec .meta .t{font-weight:600;}
+  .rec .meta .s{font-size:12px;color:var(--muted);}
+  .rec .delx{color:#ef4444;cursor:pointer;padding:4px 8px;border-radius:8px;}
+  .rec .delx:hover{background:#fee2e2;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:980px){.ov-grid{grid-template-columns:repeat(2,1fr);}.ov-row,.two-col,.work-grid{grid-template-columns:1fr;}.acc-summary{grid-template-columns:1fr;}}
+  @media(max-width:640px){.sidebar{display:none;}.main{padding:20px;}.ov-grid{grid-template-columns:1fr;}.stat-row{grid-template-columns:1fr;}}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#d4dae6;border-radius:8px;}
+
+  /* ===== Toast ===== */
+  #toastBox{position:fixed;right:24px;bottom:24px;display:flex;flex-direction:column;gap:10px;z-index:9999;}
+  .toast{
+    background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);
+    border-radius:12px;padding:14px 18px;box-shadow:var(--shadow-hover);min-width:240px;max-width:340px;
+    font-size:14px;animation:toastIn .35s cubic-bezier(.22,1,.36,1);
+  }
+  .toast .tt{font-weight:700;margin-bottom:2px;}
+  .toast .ts{color:var(--muted);font-size:13px;}
+  .toast.hide{animation:toastOut .3s ease forwards;}
+  @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+
+  /* 打印 */
+  @media print{
+    .sidebar,.top-actions,.row,.modes,.tbtn,.btn,.switch{display:none!important;}
+    body{display:block;overflow:visible;}
+    .main{height:auto;overflow:visible;padding:0;}
+    .section{display:block!important;animation:none;margin-bottom:24px;page-break-inside:avoid;}
+    .card{box-shadow:none;border:1px solid #ccc;}
+  }
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .seg button{border:none;background:transparent;color:var(--text-2);padding:6px 16px;cursor:pointer;font-size:13px;transition:.2s}
+  .seg button.active{background:var(--c-work);color:#fff}
+  #dailyChart{animation:fadeUp .5s ease}
+
+  /* ===== 同步弹窗 ===== */
+  .modal-mask{position:fixed;inset:0;background:rgba(31,41,55,.45);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:9998;animation:fadeUp .25s ease;}
+  .modal-mask.show{display:flex;}
+  .modal{width:440px;max-width:92vw;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-hover);overflow:hidden;animation:fadeUp .3s cubic-bezier(.22,1,.36,1);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);font-size:16px;font-weight:700;}
+  .modal-x{border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--muted);}
+  .modal-body{padding:20px;}
+  .sync-tip{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+  .sync-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:14px;font-weight:600;}
+  .sync-field{display:block;font-size:13px;color:var(--muted);margin-bottom:12px;}
+  .sync-field input{margin-top:6px;}
+  .sync-status{font-size:13px;padding:10px 12px;border-radius:10px;background:var(--chip-bg);color:var(--muted);margin:6px 0 14px;font-variant-numeric:tabular-nums;}
+  .sync-status.ok{color:#27AE60;}
+  .sync-status.err{color:#C41E3A;}
+  .sync-btns{display:flex;gap:10px;}
+</style>
+</head>
+<body>
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">⚡</div>
+      <div>
+        <div class="name">龙飞工作台</div>
+        <div class="sub">电气施工 · 个人中心</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-item active" data-target="overview"><span class="ico">📊</span>总览<span class="badge" id="b-overview">7</span></div>
+      <div class="nav-item" data-target="todo"><span class="ico">✅</span>今日待办<span class="badge" id="b-todo">0</span></div>
+      <div class="nav-item" data-target="study"><span class="ico">📚</span>学习计划<span class="badge" id="b-study">0</span></div>
+      <div class="nav-item" data-target="pomo"><span class="ico">🍅</span>番茄时钟<span class="badge" id="b-pomo">0</span></div>
+      <div class="nav-item" data-target="account"><span class="ico">💰</span>记账本<span class="badge" id="b-acc">0</span></div>
+      <div class="nav-item" data-target="water"><span class="ico">💧</span>喝水统计<span class="badge" id="b-water">0</span></div>
+      <div class="nav-item" data-target="work"><span class="ico">🏗</span>施工管理<span class="badge" id="b-work">0</span></div>
+    </nav>
+    <div class="sidebar-foot">本地存储 · 数据不丢失</div>
+  </aside>
+
+  <!-- 主区 -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="hello" id="hello"></div>
+        <h1 id="pageTitle">总览</h1>
+        <div class="date" id="todayDate"></div>
+      </div>
+      <div class="top-actions">
+        <button class="tbtn" id="btnTheme">🌙 深色</button>
+        <button class="tbtn" id="btnNotify">🔔 通知</button>
+        <button class="tbtn" id="btnExcel">📥 Excel</button>
+        <button class="tbtn" id="btnPdf">🖨 PDF</button>
+        <button class="tbtn" id="btnBackupOut">⬇ 备份</button>
+        <button class="tbtn" id="btnBackupIn">⬆ 恢复</button>
+        <button class="tbtn" id="btnSync">🔄 同步</button>
+        <input type="file" id="backupFile" accept="application/json,.json" style="display:none">
+      </div>
+    </div>
+
+    <!-- 总览 -->
+    <section class="section show" id="sec-overview">
+      <div class="ov-grid" id="ovGrid"></div>
+      <div class="ov-row">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--c-acc)"></span>今日收支概览</div>
+          <div class="donut-wrap">
+            <svg width="150" height="150" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="60" fill="none" stroke="var(--chip-bg)" stroke-width="16"/>
+              <circle id="donutExp" cx="75" cy="75" r="60" fill="none" stroke="#ef4444" stroke-width="16" stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377" transform="rotate(-90 75 75)"/>
+              <circle id="donutInc" cx="75" cy="75" r="60" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377" transform="rotate(90 75 75)"/>
+            </svg>
+            <div class="legend">
+              <div><span class="sw" style="background:#ef4444"></span>今日支出 <b id="legExp">¥0</b></div>
+              <div><span class="sw" style="background:#10b981"></span>今日收入 <b id="legInc">¥0</b></div>
+              <div style="margin-top:6px;color:var(--text);font-size:13px">净额 <b id="legNet">¥0</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--c-water)"></span>今日健康 & 现场打卡</div>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+            <div class="hc-item"><div class="ht"><span>喝水</span><span id="hv-water" style="color:var(--c-water);font-weight:700">0/8 杯</span></div><div class="pbar"><i id="hp-water" style="background:var(--c-water)"></i></div></div>
+            <div class="hc-item"><div class="ht"><span>待办完成</span><span id="hv-todo" style="color:var(--c-todo);font-weight:700">0/0</span></div><div class="pbar"><i id="hp-todo" style="background:var(--c-todo)"></i></div></div>
+            <div class="hc-item"><div class="ht"><span>专注番茄</span><span id="hv-pomo" style="color:var(--c-pomo);font-weight:700">0 个</span></div><div class="pbar"><i id="hp-pomo" style="background:var(--c-pomo)"></i></div></div>
+            <div class="hc-item"><div class="ht"><span>巡检打卡</span><span id="hv-work" style="color:var(--c-work);font-weight:700">0 次</span></div><div class="pbar"><i id="hp-work" style="background:var(--c-work)"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 今日待办 -->
+    <section class="section" id="sec-todo">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--c-todo)"></span>今日待办清单</div>
+        <div class="row">
+          <input type="text" id="todoInput" placeholder="添加一项待办，回车确认…" style="flex:1;min-width:240px">
+          <button class="btn" id="todoAdd">添加</button>
+        </div>
+        <div class="progress-head"><span id="todoProgText">0 / 0 完成</span><span id="todoPct">0%</span></div>
+        <div class="pbar"><i id="todoBar"></i></div>
+        <div class="todo-list" id="todoList"></div>
+      </div>
+    </section>
+
+    <!-- 学习计划 -->
+    <section class="section" id="sec-study">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--c-study)"></span>学习计划管理</div>
+        <div class="row">
+          <input type="text" id="planTitle" placeholder="学习内容，如：配电柜二次接线" style="flex:1;min-width:220px">
+          <input type="number" id="planTarget" placeholder="目标量" style="width:110px" min="1">
+          <select id="planUnit"><option value="小时">小时</option><option value="章节">章节</option><option value="页">页</option><option value="天">天</option><option value="个">个</option></select>
+          <button class="btn" id="planAdd">添加计划</button>
+        </div>
+        <div class="progress-head"><span>整体学习进度</span><span id="studyPct">0%</span></div>
+        <div class="pbar"><i id="studyBar" style="background:linear-gradient(90deg,var(--plan-start),var(--plan-end))"></i></div>
+        <div id="planList" style="margin-top:16px"></div>
+      </div>
+    </section>
+
+    <!-- 番茄时钟 -->
+    <section class="section" id="sec-pomo">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--c-pomo)"></span>番茄工作法 <span class="right">专注25′ · 短休5′ · 长休15′</span></div>
+        <div class="pomo-wrap">
+          <div class="modes">
+            <button data-min="25" class="on">专注 25′</button>
+            <button data-min="5">短休 5′</button>
+            <button data-min="15">长休 15′</button>
+          </div>
+          <div class="ring-box">
+            <svg width="260" height="260" viewBox="0 0 260 260">
+              <circle cx="130" cy="130" r="115" fill="none" stroke="var(--chip-bg)" stroke-width="14"/>
+              <circle id="pomoRing" cx="130" cy="130" r="115" fill="none" stroke="var(--c-pomo)" stroke-width="14" stroke-linecap="round" stroke-dasharray="722" stroke-dashoffset="0"/>
+            </svg>
+            <div class="center"><div class="time" id="pomoTime">25:00</div><div class="state" id="pomoState">准备开始</div></div>
+          </div>
+          <div class="pomo-ctrls">
+            <button class="btn" id="pomStart">开始</button>
+            <button class="btn ghost" id="pomReset">重置</button>
+          </div>
+          <div class="pomo-stat">
+            <div><div class="n" id="pomToday">0</div><div class="l">今日番茄</div></div>
+            <div><div class="n" id="pomFocus">0</div><div class="l">累计分钟</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 记账本 -->
+    <section class="section" id="sec-account">
+      <div class="acc-summary">
+        <div class="acc-box bal"><div class="l">本月结余</div><div class="v" id="accBal">¥0</div></div>
+        <div class="acc-box exp"><div class="l">本月支出</div><div class="v" id="accExp">¥0</div></div>
+        <div class="acc-box inc"><div class="l">本月收入</div><div class="v" id="accInc">¥0</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--c-acc)"></span>记一笔</div>
+          <div class="row">
+            <select id="accType"><option value="exp">支出</option><option value="inc">收入</option></select>
+            <input type="number" id="accAmount" placeholder="金额" style="width:130px" min="0" step="0.01">
+          </div>
+          <div class="cat-quick" id="catQuick" style="margin-bottom:14px"></div>
+          <div class="row">
+            <input type="text" id="accNote" placeholder="备注（可选）" style="flex:1;min-width:160px">
+            <input type="date" id="accDate">
+            <button class="btn" id="accAdd">保存</button>
+          </div>
+          <div class="acc-list" id="accList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:#f97316"></span>支出分类占比（本月）</div>
+          <div class="acc-bars" id="accBars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 喝水统计 -->
+    <section class="section" id="sec-water">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--c-water)"></span>每日喝水统计
+          <label class="switch right"><input type="checkbox" id="waterRemind"> 每60分钟提醒</label>
+        </div>
+        <div class="water-wrap">
+          <div class="cup-ring">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="95" fill="none" stroke="var(--chip-bg)" stroke-width="14"/>
+              <circle id="waterRing" cx="110" cy="110" r="95" fill="none" stroke="var(--c-water)" stroke-width="14" stroke-linecap="round" stroke-dasharray="597" stroke-dashoffset="597"/>
+            </svg>
+            <div class="wc"><div class="big" id="waterCount">0</div><div class="small">/ <span id="waterGoal">8</span> 杯</div></div>
+          </div>
+          <button class="btn" id="waterAdd" style="background:var(--c-water);box-shadow:0 4px 12px rgba(56,189,248,.35)">＋ 喝一杯 (250ml)</button>
+          <div class="cup-row" id="cupRow"></div>
+          <div class="water-log">
+            <div class="card-title" style="font-size:14px;margin-bottom:6px">饮水记录</div>
+            <div id="waterLog"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 施工管理 -->
+    <section class="section" id="sec-work">
+      <div class="stat-row">
+        <div class="mini"><div class="n" id="wInsTotal">0</div><div class="l">巡检总次数</div></div>
+        <div class="mini"><div class="n" id="wInsBad">0</div><div class="l">异常项</div></div>
+        <div class="mini"><div class="n" id="wHours">0</div><div class="l">累计工时(h)</div></div>
+      </div>
+      <div class="stat-row">
+        <div class="mini"><div class="n" id="wDayCount">0</div><div class="l">施工日志(天)</div></div>
+        <div class="mini"><div class="n" id="wAvgProg">0%</div><div class="l">平均进度</div></div>
+        <div class="mini"><div class="n" id="wAttend">0</div><div class="l">累计出勤(人)</div></div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title"><span class="dot" style="background:var(--c-work)"></span>每日施工日志 <span class="right">进度 · 工作内容 · 考勤</span></div>
+        <div class="row">
+          <input type="date" id="dyDate">
+          <select id="dyPart" style="flex:1;min-width:200px">
+            <option value="">施工部位/分项…</option>
+            <optgroup label="通用工序">
+              <option>桥架安装</option>
+              <option>电缆敷设</option>
+              <option>柜体安装</option>
+              <option>设备调试</option>
+              <option>线路架设</option>
+            </optgroup>
+            <optgroup label="电气专用节点">
+              <option>环网柜</option>
+              <option>高压柜</option>
+              <option>箱式变电站</option>
+              <option>配电柜</option>
+              <option>变压器</option>
+              <option>电缆终端头</option>
+              <option>接地装置</option>
+              <option>杆塔</option>
+            </optgroup>
+            <option value="__custom">其他（自定义）</option>
+          </select>
+          <input type="text" id="dyPartCustom" placeholder="自定义施工部位" style="flex:1;min-width:160px;display:none">
+          <input type="number" id="dyProg" placeholder="进度%" style="width:100px" min="0" max="100">
+        </div>
+        <div class="row">
+          <input type="number" id="dyShould" placeholder="应到" style="width:90px" min="0">
+          <input type="number" id="dyActual" placeholder="实到" style="width:90px" min="0">
+          <input type="text" id="dyContent" placeholder="当日工作内容（可选）" style="flex:1;min-width:200px">
+          <button class="btn" id="dyAdd">记日报</button>
+        </div>
+        <div class="rec-list" id="dyList"></div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title"><span class="dot" style="background:var(--c-work)"></span>施工进度趋势 <span class="right" id="dyChartInfo">平均进度%</span></div>
+          <div class="row" style="align-items:center;margin-bottom:10px;gap:10px">
+            <div class="seg">
+              <button id="dyWeek" class="active">按周</button>
+              <button id="dyMonth">按月</button>
+            </div>
+            <button class="btn" id="dyExportImg" style="margin-left:auto">⬇ 导出图片</button>
+          </div>
+        <canvas id="dailyChart" style="width:100%;height:220px;display:block"></canvas>
+        <div class="empty" id="dyChartEmpty" style="display:none">还没有带「进度%」的日报记录，记几条就有曲线了 📈</div>
+      </div>
+      <div class="work-grid">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--c-work)"></span>巡检打卡</div>
+          <div class="row">
+            <input type="text" id="insPoint" placeholder="巡检点/设备，如：#3环网柜" style="flex:1;min-width:180px">
+            <select id="insResult"><option value="正常">正常</option><option value="异常">异常</option><option value="待处理">待处理</option></select>
+          </div>
+          <div class="row">
+            <input type="text" id="insNote" placeholder="备注（可选）" style="flex:1;min-width:160px">
+            <button class="btn" id="insAdd">打卡</button>
+          </div>
+          <div class="rec-list" id="insList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--c-work)"></span>工时统计</div>
+          <div class="row">
+            <input type="date" id="wkDate">
+            <input type="text" id="wkType" placeholder="工序，如：电缆敷设" style="flex:1;min-width:140px">
+          </div>
+          <div class="row">
+            <input type="number" id="wkPeople" placeholder="人数" style="width:90px" min="1">
+            <input type="number" id="wkHours" placeholder="工时(h)" style="width:100px" min="0" step="0.5">
+            <button class="btn" id="wkAdd">记录</button>
+          </div>
+          <div class="rec-list" id="wkList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastBox"></div>
+
+<script>
+/* ============ 工具 ============ */
+const today = () => new Date().toISOString().slice(0,10);
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function load(k, d){ try{ return JSON.parse(localStorage.getItem('wb_'+k)) || d; }catch(e){ return d; } }
+function save(k, v){
+  localStorage.setItem('wb_'+k, JSON.stringify(v));
+  if (sync.enabled && SYNC_KEYS.includes(k)) { bumpRev(k); schedulePush(); }
+}
+
+/* ============ 云端同步层 ============ */
+const SYNC_KEYS = ['todos','plans','pomo','accs','water','inspects','works','dailys','theme'];
+const sync = load('sync', {enabled:false, url:'', project:'龙飞电气-许昌项目', pass:''});
+let syncRev = load('syncrev', {});
+let pushTimer = null, pushing = false;
+function bumpRev(k){ syncRev[k] = Date.now(); localStorage.setItem('wb_syncrev', JSON.stringify(syncRev)); }
+function schedulePush(){ if(pushTimer) clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 800); }
+function syncState(){
+  return { todos, plans, pomo, accs, water, inspects, works, dailys, theme:document.documentElement.getAttribute('data-theme') };
+}
+function assignCol(k, val){
+  if(k==='todos') todos=val; else if(k==='plans') plans=val; else if(k==='pomo') pomo=val;
+  else if(k==='accs') accs=val; else if(k==='water') water=val; else if(k==='inspects') inspects=val;
+  else if(k==='works') works=val; else if(k==='dailys') dailys=val;
+  localStorage.setItem('wb_'+k, JSON.stringify(val));
+}
+function applyRemote(state){
+  if(!state || !state.data) return false;
+  const d = state.data, revs = state.revs || {}; let changed = false;
+  SYNC_KEYS.forEach(k=>{
+    if(k in d && (revs[k]||0) > (syncRev[k]||0)){
+      if(k==='theme') applyTheme(d[k]); else assignCol(k, d[k]);
+      syncRev[k] = revs[k]; changed = true;
+    }
+  });
+  localStorage.setItem('wb_syncrev', JSON.stringify(syncRev));
+  return changed;
+}
+function renderAll(){
+  renderTodos(); renderPlans(); renderPomo(); renderCats(); renderAccs();
+  renderWater(); renderWork(); renderOverview(); refreshBadges();
+}
+function setSyncStatus(msg, cls){ const el=$('#syncStatus'); if(el){ el.textContent=msg; el.className='sync-status'+(cls?(' '+cls):''); } }
+async function pushNow(){
+  if(pushing || !sync.enabled) return; pushing = true;
+  try{
+    const body = JSON.stringify({pass:sync.pass, revs:syncRev, data:syncState()});
+    const res = await fetch(sync.url.replace(/\/$/,'')+'/api/'+encodeURIComponent(sync.project), {method:'POST', headers:{'Content-Type':'application/json'}, body});
+    if(!res.ok){ const e=await res.json().catch(()=>({})); setSyncStatus(res.status===403?'口令错误':(e.error||'同步失败'),'err'); return; }
+    applyRemote(await res.json());
+    setSyncStatus('已同步 · '+new Date().toLocaleTimeString('zh-CN'),'ok');
+    renderAll();
+  }catch(e){ setSyncStatus('连接失败：'+(e&&e.message||e),'err'); }
+  finally{ pushing=false; }
+}
+async function pullNow(){
+  if(!sync.enabled) return;
+  try{
+    const url = sync.url.replace(/\/$/,'')+'/api/'+encodeURIComponent(sync.project)+'?pass='+encodeURIComponent(sync.pass);
+    const res = await fetch(url);
+    if(!res.ok){ const e=await res.json().catch(()=>({})); setSyncStatus(res.status===403?'口令错误':(e.error||'拉取失败'),'err'); return; }
+    const changed = applyRemote(await res.json());
+    renderAll();
+    setSyncStatus((changed?'已更新本地 · ':'已是最新 · ')+new Date().toLocaleTimeString('zh-CN'),'ok');
+  }catch(e){ setSyncStatus('连接失败：'+(e&&e.message||e),'err'); }
+}
+$('#btnSync').onclick = ()=>{
+  $('#syncUrl').value=sync.url; $('#syncProj').value=sync.project; $('#syncPass').value=sync.pass; $('#syncOn').checked=!!sync.enabled;
+  $('#syncMask').classList.add('show'); if(sync.enabled) pullNow();
+};
+$('#syncClose').onclick = ()=> $('#syncMask').classList.remove('show');
+$('#syncMask').onclick = (e)=>{ if(e.target.id==='syncMask') $('#syncMask').classList.remove('show'); };
+$('#syncSave').onclick = ()=>{
+  sync.enabled=$('#syncOn').checked;
+  sync.url=$('#syncUrl').value.trim(); sync.project=$('#syncProj').value.trim()||'龙飞电气-许昌项目'; sync.pass=$('#syncPass').value;
+  localStorage.setItem('wb_sync', JSON.stringify(sync));
+  $('#syncMask').classList.remove('show');
+  showToast('同步设置已保存', sync.enabled?'将自动实时同步':'已关闭同步');
+  if(sync.enabled) pullNow().then(pushNow);
+};
+$('#syncNow').onclick = ()=>{
+  if(!sync.enabled){ showToast('请先保存同步设置','开启并填写服务器/项目/口令'); return; }
+  pullNow().then(pushNow);
+};
+if(sync.enabled){ pullNow().catch(()=>{}); }
+
+/* ============ Toast & 通知 ============ */
+function showToast(title, sub=''){
+  const box = $('#toastBox');
+  const el = document.createElement('div'); el.className='toast';
+  el.innerHTML = `<div class="tt">${esc(title)}</div>${sub?`<div class="ts">${esc(sub)}</div>`:''}`;
+  box.appendChild(el);
+  setTimeout(()=>{ el.classList.add('hide'); setTimeout(()=>el.remove(),300); }, 3800);
+}
+function notify(title, sub){
+  if('Notification' in window && Notification.permission==='granted'){
+    try{ new Notification(title,{body:sub}); }catch(e){ showToast(title,sub); }
+  } else { showToast(title,sub); }
+}
+$('#btnNotify').onclick = ()=>{
+  if(!('Notification' in window)){ showToast('当前环境不支持桌面通知','已使用站内提醒'); return; }
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){ showToast('桌面通知已开启','番茄结束、喝水提醒将弹窗'); notify('通知测试','龙飞，通知正常工作 ✅'); }
+    else showToast('未授权桌面通知','将使用站内提醒');
+  });
+};
+
+/* ============ 深色模式 ============ */
+const savedTheme = localStorage.getItem('wb_theme') || 'light';
+applyTheme(savedTheme);
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const map={'light':['🌙 深色','浅色'],'dark':['🇨🇳 中国红','深色'],'red':['☀️ 浅色','中国红']};
+  $('#btnTheme').textContent = (map[t]||['🌙 深色','浅色'])[0];
+  localStorage.setItem('wb_theme', t);
+}
+$('#btnTheme').onclick = ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const order=['light','dark','red'];
+  const next = order[(order.indexOf(cur)+1)%order.length];
+  applyTheme(next);
+  refreshThemeColors();
+};
+// 深色下 SVG 圆环底色需切换（已在 CSS 用 var，无需 JS）；这里仅占位以便扩展
+
+/* ============ 导航 ============ */
+const titles = {overview:'总览',todo:'今日待办',study:'学习计划',pomo:'番茄时钟',account:'记账本',water:'喝水统计',work:'施工管理'};
+document.querySelectorAll('.nav-item').forEach(it=>{
+  it.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    it.classList.add('active');
+    const t = it.dataset.target;
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('show'));
+    $('#sec-'+t).classList.add('show');
+    $('#pageTitle').textContent = titles[t];
+    if(t==='overview') renderOverview();
+    if(t==='work') renderWork();
+  });
+});
+(function(){
+  const d = new Date(); const wk = ['日','一','二','三','四','五','六'][d.getDay()];
+  $('#todayDate').textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${wk}`;
+  const h = d.getHours();
+  $('#hello').textContent = h<11?'早上好，主人':h<14?'中午好，主人':h<18?'下午好，主人':'晚上好，主人';
+})();
+function countUp(el, to){
+  const from=0, dur=800, st=performance.now();
+  function step(t){ const p=Math.min((t-st)/dur,1); const e=1-Math.pow(1-p,3);
+    el.textContent = Math.round(from+(to-from)*e); if(p<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+function refreshThemeColors(){
+  // 甜甜圈底色和圆环底色使用 CSS 变量，刷新总览即可
+  if($('#sec-overview').classList.contains('show')) renderOverview();
+  renderDailyChart();
+}
+
+/* ============ 待办 ============ */
+let todos = load('todos', []);
+function renderTodos(){
+  const list = $('#todoList'); list.innerHTML='';
+  if(!todos.length){ list.innerHTML='<div class="empty">暂无待办，添加今天的计划吧 💪</div>'; }
+  todos.forEach(t=>{
+    const el = document.createElement('div'); el.className='todo-item'+(t.done?' done':'');
+    el.innerHTML = `<div class="chk"></div><div class="txt">${esc(t.text)}</div><div class="del">删除</div>`;
+    el.querySelector('.chk').onclick=()=>{ t.done=!t.done; save('todos',todos); renderTodos(); refreshBadges(); };
+    el.querySelector('.del').onclick=()=>{ todos=todos.filter(x=>x.id!=t.id); save('todos',todos); renderTodos(); refreshBadges(); };
+    list.appendChild(el);
+  });
+  const done = todos.filter(t=>t.done).length;
+  const pct = todos.length? Math.round(done/todos.length*100):0;
+  $('#todoProgText').textContent = `${done} / ${todos.length} 完成`;
+  $('#todoPct').textContent = pct+'%'; $('#todoBar').style.width = pct+'%';
+}
+$('#todoAdd').onclick = addTodo;
+$('#todoInput').addEventListener('keydown',e=>{ if(e.key==='Enter') addTodo(); });
+function addTodo(){
+  const v=$('#todoInput').value.trim(); if(!v) return;
+  todos.unshift({id:Date.now(),text:v,done:false}); $('#todoInput').value='';
+  save('todos',todos); renderTodos(); refreshBadges();
+}
+
+/* ============ 学习计划 ============ */
+let plans = load('plans', []);
+function renderPlans(){
+  const box=$('#planList'); box.innerHTML='';
+  if(!plans.length){ box.innerHTML='<div class="empty">还没有学习计划，添加一项开始吧 📚</div>'; }
+  plans.forEach(p=>{
+    const pct=p.target?Math.min(Math.round(p.current/p.target*100),100):0;
+    const el=document.createElement('div'); el.className='plan-item';
+    el.innerHTML=`<div class="top"><div class="ttl">${esc(p.title)}</div><div class="val">${p.current} / ${p.target} ${p.unit}</div></div>
+      <div class="pb"><i style="width:${pct}%"></i></div>
+      <div class="ops"><span class="chip" data-act="add">+1 ${p.unit}</span><span class="chip" data-act="sub">-1 ${p.unit}</span><span class="chip" data-act="del">删除</span></div>`;
+    el.querySelector('[data-act=add]').onclick=()=>{ p.current=Math.min(p.current+1,p.target); save('plans',plans); renderPlans(); refreshBadges(); };
+    el.querySelector('[data-act=sub]').onclick=()=>{ p.current=Math.max(p.current-1,0); save('plans',plans); renderPlans(); refreshBadges(); };
+    el.querySelector('[data-act=del]').onclick=()=>{ plans=plans.filter(x=>x.id!=p.id); save('plans',plans); renderPlans(); refreshBadges(); };
+    box.appendChild(el);
+  });
+  const tt=plans.reduce((s,p)=>s+p.target,0), tc=plans.reduce((s,p)=>s+Math.min(p.current,p.target),0);
+  const pct=tt?Math.round(tc/tt*100):0;
+  $('#studyPct').textContent=pct+'%'; $('#studyBar').style.width=pct+'%';
+}
+$('#planAdd').onclick=()=>{
+  const title=$('#planTitle').value.trim(), target=parseInt($('#planTarget').value);
+  if(!title||!target) return;
+  plans.push({id:Date.now(),title,target,current:0,unit:$('#planUnit').value});
+  $('#planTitle').value=''; $('#planTarget').value=''; save('plans',plans); renderPlans(); refreshBadges();
+};
+
+/* ============ 番茄时钟 ============ */
+let pomo = load('pomo', {date:today(), count:0, focus:0});
+if(pomo.date!==today()) pomo={date:today(),count:0,focus:0};
+let pomoTimer=null, pomoLeft=25*60, pomoTotal=25*60, pomoRunning=false;
+const RING_LEN=722;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function renderPomo(){
+  $('#pomoTime').textContent=fmt(pomoLeft);
+  $('#pomoRing').style.strokeDashoffset=RING_LEN*(1-pomoLeft/pomoTotal);
+  $('#pomToday').textContent=pomo.count; $('#pomFocus').textContent=pomo.focus;
+}
+function setMode(min){ clearInterval(pomoTimer); pomoRunning=false; $('#pomStart').textContent='开始'; pomoLeft=min*60; pomoTotal=min*60; $('#pomoState').textContent='准备开始'; renderPomo(); }
+document.querySelectorAll('.modes button').forEach(b=>{ b.onclick=()=>{ document.querySelectorAll('.modes button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); setMode(+b.dataset.min); }; });
+$('#pomStart').onclick=()=>{
+  if(pomoRunning){ clearInterval(pomoTimer); pomoRunning=false; $('#pomStart').textContent='继续'; $('#pomoState').textContent='已暂停'; return; }
+  pomoRunning=true; $('#pomStart').textContent='暂停'; $('#pomoState').textContent='专注中…';
+  pomoTimer=setInterval(()=>{
+    pomoLeft--;
+    if(pomoLeft<=0){
+      clearInterval(pomoTimer); pomoRunning=false; $('#pomStart').textContent='开始'; $('#pomoState').textContent='完成 🎉';
+      const mode=document.querySelector('.modes button.on').dataset.min;
+      if(mode==='25'){ pomo.count++; pomo.focus+=25; save('pomo',pomo); refreshBadges(); notify('番茄完成 🍅','专注25分钟，起来活动一下吧'); }
+      else notify('休息结束','继续下一段工作 💪');
+      pomoLeft=+mode*60; pomoTotal=+mode*60; renderPomo(); return;
+    }
+    renderPomo();
+  },1000);
+};
+$('#pomReset').onclick=()=>{ const min=+document.querySelector('.modes button.on').dataset.min; setMode(min); };
+renderPomo();
+
+/* ============ 记账本 ============ */
+const CATS={exp:['餐饮','交通','材料','工具','住宿','其他'],inc:['工资','工程款','报销','其他']};
+let accs = load('accs', []);
+let curCat=CATS.exp[0], curType='exp';
+function renderCats(){
+  const box=$('#catQuick'); box.innerHTML='';
+  CATS[curType].forEach(c=>{ const el=document.createElement('span'); el.className='chip'+(c===curCat?' on':''); el.textContent=c;
+    el.onclick=()=>{ curCat=c; renderCats(); }; box.appendChild(el); });
+}
+$('#accType').onchange=e=>{ curType=e.target.value; curCat=CATS[curType][0]; renderCats(); };
+function renderAccs(){
+  const list=$('#accList'); list.innerHTML='';
+  const sorted=[...accs].sort((a,b)=>b.id-a.id).slice(0,30);
+  if(!sorted.length){ list.innerHTML='<div class="empty">还没有记账记录</div>'; }
+  sorted.forEach(a=>{
+    const el=document.createElement('div'); el.className='acc-item';
+    const sign=a.type==='inc'?'+':'-';
+    el.innerHTML=`<div class="ci">${a.type==='inc'?'💵':'🧾'}</div>
+      <div class="meta"><div class="t">${esc(a.cat)}</div><div class="s">${esc(a.note||'')} · ${a.date}</div></div>
+      <div class="amt ${a.type}">${sign}¥${a.amount}</div>
+      <div class="delx">✕</div>`;
+    el.querySelector('.delx').onclick=()=>{ accs=accs.filter(x=>x.id!=a.id); save('accs',accs); renderAccs(); refreshBadges(); };
+    list.appendChild(el);
+  });
+  const tm=accs.filter(a=>a.date.slice(0,7)===today().slice(0,7));
+  const exp=tm.filter(a=>a.type==='exp').reduce((s,a)=>s+a.amount,0);
+  const inc=tm.filter(a=>a.type==='inc').reduce((s,a)=>s+a.amount,0);
+  $('#accExp').textContent='¥'+exp.toFixed(2); $('#accInc').textContent='¥'+inc.toFixed(2); $('#accBal').textContent='¥'+(inc-exp).toFixed(2);
+  const byCat={}; tm.filter(a=>a.type==='exp').forEach(a=>byCat[a.cat]=(byCat[a.cat]||0)+a.amount);
+  const max=Math.max(1,...Object.values(byCat));
+  const bars=$('#accBars'); bars.innerHTML='';
+  Object.entries(byCat).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+    const el=document.createElement('div'); el.className='acc-bar';
+    el.innerHTML=`<span class="nm">${k}</span><div class="tb"><i style="width:${v/max*100}%"></i></div><span class="vv">¥${v.toFixed(0)}</span>`;
+    bars.appendChild(el);
+  });
+  if(!Object.keys(byCat).length) bars.innerHTML='<div class="empty" style="padding:20px">本月暂无支出</div>';
+}
+$('#accAdd').onclick=()=>{
+  const amt=parseFloat($('#accAmount').value); if(!amt||amt<=0) return;
+  accs.push({id:Date.now(),type:curType,amount:amt,cat:curCat,note:$('#accNote').value.trim(),date:$('#accDate').value||today()});
+  $('#accAmount').value=''; $('#accNote').value=''; save('accs',accs); renderAccs(); refreshBadges();
+};
+$('#accDate').value=today();
+renderCats(); renderAccs();
+
+/* ============ 喝水 ============ */
+let water = load('water', {date:today(), goal:8, count:0, logs:[]});
+if(water.date!==today()) water={date:today(), goal:8, count:0, logs:[]};
+const CUP_ML=250;
+function renderWater(){
+  $('#waterCount').textContent=water.count; $('#waterGoal').textContent=water.goal;
+  $('#waterRing').style.strokeDashoffset=597*(1-Math.min(water.count/water.goal,1));
+  const row=$('#cupRow'); row.innerHTML='';
+  for(let i=0;i<water.goal;i++){
+    const c=document.createElement('div'); c.className='cup';
+    const f=document.createElement('div'); f.className='fill'; if(i<water.count) f.style.height='100%';
+    c.appendChild(f); c.onclick=()=>{ if(i<water.count){ water.count=i; water.logs=water.logs.slice(0,i);} save('water',water); renderWater(); refreshBadges(); };
+    row.appendChild(c);
+  }
+  const log=$('#waterLog'); log.innerHTML='';
+  if(!water.logs.length) log.innerHTML='<div class="empty" style="padding:16px">今天还没喝水，点上面按钮记录第一杯 💧</div>';
+  [...water.logs].reverse().forEach(l=>{ const el=document.createElement('div'); el.className='wl-item'; el.innerHTML=`<span>${l.time}</span><b>+${CUP_ML}ml</b>`; log.appendChild(el); });
+}
+$('#waterAdd').onclick=()=>{
+  if(water.count>=water.goal && !confirm('已达今日目标，还要再喝一杯吗？')) return;
+  water.count++; water.logs.push({time:new Date().toTimeString().slice(0,5)}); save('water',water); renderWater(); refreshBadges();
+};
+let waterRemindTimer=null;
+$('#waterRemind').onchange=e=>{
+  if(e.target.checked){
+    waterRemindTimer=setInterval(()=>notify('该喝水了 💧',`已喝 ${water.count}/${water.goal} 杯，补充一下`), 60*60*1000);
+    showToast('喝水提醒已开启','每60分钟提醒一次');
+  } else { clearInterval(waterRemindTimer); showToast('喝水提醒已关闭'); }
+};
+renderWater();
+
+/* ============ 施工管理 ============ */
+let inspects = load('inspects', []);
+let works = load('works', []);
+let dailys = load('dailys', []);
+$('#wkDate').value=today();
+$('#dyDate').value=today();
+function renderWork(){
+  // 巡检
+  const il=$('#insList'); il.innerHTML='';
+  const sortedI=[...inspects].sort((a,b)=>b.id-a.id);
+  if(!sortedI.length) il.innerHTML='<div class="empty">暂无巡检记录</div>';
+  sortedI.forEach(r=>{
+    const el=document.createElement('div'); el.className='rec';
+    const tagCls=r.result==='正常'?'ok':r.result==='异常'?'bad':'wait';
+    el.innerHTML=`<span class="tag ${tagCls}">${r.result}</span>
+      <div class="meta"><div class="t">${esc(r.point)}</div><div class="s">${esc(r.note||'无备注')} · ${r.time}</div></div>
+      <div class="delx">✕</div>`;
+    el.querySelector('.delx').onclick=()=>{ inspects=inspects.filter(x=>x.id!=r.id); save('inspects',inspects); renderWork(); refreshBadges(); };
+    il.appendChild(el);
+  });
+  // 工时
+  const wl=$('#wkList'); wl.innerHTML='';
+  const sortedW=[...works].sort((a,b)=>b.id-a.id);
+  if(!sortedW.length) wl.innerHTML='<div class="empty">暂无工时记录</div>';
+  sortedW.forEach(r=>{
+    const el=document.createElement('div'); el.className='rec';
+    el.innerHTML=`<div class="meta"><div class="t">${esc(r.type)}</div><div class="s">${r.date} · ${r.people}人 · ${r.hours}h</div></div>
+      <div class="delx">✕</div>`;
+    el.querySelector('.delx').onclick=()=>{ works=works.filter(x=>x.id!=r.id); save('works',works); renderWork(); refreshBadges(); };
+    wl.appendChild(el);
+  });
+  // 每日施工日志
+  const dl=$('#dyList'); dl.innerHTML='';
+  const sortedD=[...dailys].sort((a,b)=> (b.date+b.id).localeCompare(a.date+a.id));
+  if(!sortedD.length) dl.innerHTML='<div class="empty">还没有施工日志，记录今天进度吧 📋</div>';
+  sortedD.forEach(r=>{
+    const attend=(r.actual!=null&&r.should!=null)?`考勤 ${r.actual}/${r.should}`:'考勤 -';
+    const el=document.createElement('div'); el.className='rec';
+    el.innerHTML=`<div class="meta"><div class="t">${esc(r.date)} · ${esc(r.part||'未填部位')} · 进度${r.prog!=null?r.prog+'%':'-'}</div><div class="s">${esc(r.content||'无工作内容')} · ${attend}</div></div><div class="delx">✕</div>`;
+    el.querySelector('.delx').onclick=()=>{ dailys=dailys.filter(x=>x.id!=r.id); save('dailys',dailys); renderWork(); refreshBadges(); };
+    dl.appendChild(el);
+  });
+  // 统计
+  $('#wInsTotal').textContent=inspects.length;
+  $('#wInsBad').textContent=inspects.filter(r=>r.result!=='正常').length;
+  $('#wHours').textContent=works.reduce((s,r)=>s+(+r.hours||0),0);
+  $('#wDayCount').textContent=dailys.length;
+  const progs=dailys.filter(r=>r.prog!=null).map(r=>r.prog);
+  $('#wAvgProg').textContent= progs.length? Math.round(progs.reduce((s,a)=>s+a,0)/progs.length)+'%':'0%';
+  $('#wAttend').textContent=dailys.reduce((s,r)=>s+(+r.actual||0),0);
+  renderDailyChart();
+}
+$('#insAdd').onclick=()=>{
+  const point=$('#insPoint').value.trim(); if(!point) return;
+  inspects.push({id:Date.now(),point,result:$('#insResult').value,note:$('#insNote').value.trim(),time:new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})});
+  $('#insPoint').value=''; $('#insNote').value=''; save('inspects',inspects); renderWork(); refreshBadges();
+  const res=$('#insResult').value;
+  if(res==='异常') notify('巡检异常 ⚠️',`${point} 标记为异常，请及时处理`);
+};
+$('#wkAdd').onclick=()=>{
+  const type=$('#wkType').value.trim(); const people=parseInt($('#wkPeople').value); const hours=parseFloat($('#wkHours').value);
+  if(!type||!people||!hours) return;
+  works.push({id:Date.now(),date:$('#wkDate').value||today(),type,people,hours});
+  $('#wkType').value=''; $('#wkPeople').value=''; $('#wkHours').value=''; save('works',works); renderWork(); refreshBadges();
+};
+$('#dyAdd').onclick=()=>{
+  let part=$('#dyPart').value;
+  if(part==='__custom') part=$('#dyPartCustom').value.trim(); else part=part.trim();
+  const progRaw=parseInt($('#dyProg').value);
+  const date=$('#dyDate').value||today();
+  const should=parseInt($('#dyShould').value); const actual=parseInt($('#dyActual').value);
+  if(!part && isNaN(progRaw)) return;
+  dailys.push({id:Date.now(),date,part,prog:isNaN(progRaw)?null:progRaw,
+    should:isNaN(should)?null:should, actual:isNaN(actual)?null:actual, content:$('#dyContent').value.trim()});
+  $('#dyPart').value=''; $('#dyPartCustom').value=''; $('#dyPartCustom').style.display='none'; $('#dyProg').value=''; $('#dyShould').value=''; $('#dyActual').value=''; $('#dyContent').value='';
+  save('dailys',dailys); renderWork(); refreshBadges();
+};
+renderWork();
+
+/* 施工部位自定义输入 & 进度趋势图 */
+$('#dyPart').onchange=()=>{ $('#dyPartCustom').style.display = $('#dyPart').value==='__custom' ? 'block':'none'; };
+let dailyChartMode='week';
+$('#dyWeek').onclick=()=>{ dailyChartMode='week'; $('#dyWeek').classList.add('active'); $('#dyMonth').classList.remove('active'); renderDailyChart(); };
+$('#dyMonth').onclick=()=>{ dailyChartMode='month'; $('#dyMonth').classList.add('active'); $('#dyWeek').classList.remove('active'); renderDailyChart(); };
+function renderDailyChart(){
+  const cv=$('#dailyChart'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth||600, H=220;
+  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const cs=getComputedStyle(document.documentElement);
+  const axisC=(cs.getPropertyValue('--text-3')||'#94a3b8').trim();
+  const gridC=(cs.getPropertyValue('--border')||'#e9edf4').trim();
+  const accent=(cs.getPropertyValue('--c-work')||'#0ea5e9').trim();
+  const map=new Map();
+  dailys.forEach(r=>{
+    if(r.prog==null) return;
+    let key;
+    const d=new Date(r.date+'T00:00:00');
+    if(dailyChartMode==='week'){
+      const day=(d.getDay()+6)%7; const wk=new Date(d); wk.setDate(d.getDate()-day);
+      key=wk.toISOString().slice(0,10);
+    } else { key=r.date.slice(0,7); }
+    if(!map.has(key)) map.set(key,[]);
+    map.get(key).push(r.prog);
+  });
+  const keys=[...map.keys()].sort();
+  const vals=keys.map(k=>Math.round(map.get(k).reduce((s,a)=>s+a,0)/map.get(k).length));
+  const labels=keys.map(k=> dailyChartMode==='week' ? k.slice(5).replace('-','/') : k.slice(2).replace('-','/'));
+  const padL=38, padR=14, padT=14, padB=26;
+  const cw=W-padL-padR, ch=H-padT-padB;
+  $('#dyChartInfo').textContent='平均进度%';
+  if(!keys.length){ cv.style.display='none'; $('#dyChartEmpty').style.display='block'; return; }
+  cv.style.display='block'; $('#dyChartEmpty').style.display='none';
+  $('#dyChartInfo').textContent='共 '+keys.length+' 个'+(dailyChartMode==='week'?'周':'月')+' · 均值 '+Math.round(vals.reduce((s,a)=>s+a,0)/vals.length)+'%';
+  ctx.strokeStyle=gridC; ctx.fillStyle=axisC; ctx.lineWidth=1; ctx.font='11px sans-serif';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let v=0;v<=100;v+=25){
+    const y=padT+ch*(1-v/100);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    ctx.fillText(v+'%',padL-6,y);
+  }
+  if(keys.length===1){
+    const x=padL+cw/2, y=padT+ch*(1-vals[0]/100);
+    ctx.fillStyle=accent; ctx.beginPath(); ctx.arc(x,y,5,0,7); ctx.fill();
+    ctx.fillStyle=accent; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText(labels[0]+'：'+vals[0]+'%',x,y-8);
+    return;
+  }
+  const stepX=cw/(keys.length-1);
+  ctx.fillStyle=axisC; ctx.textAlign='center'; ctx.textBaseline='top';
+  keys.forEach((k,i)=>{ ctx.fillText(labels[i], padL+stepX*i, padT+ch+6); });
+  const grad=ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0, accent+'55'); grad.addColorStop(1, accent+'00');
+  ctx.beginPath();
+  vals.forEach((v,i)=>{ const x=padL+stepX*i, y=padT+ch*(1-v/100); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.lineTo(padL+stepX*(vals.length-1), padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath();
+  vals.forEach((v,i)=>{ const x=padL+stepX*i, y=padT+ch*(1-v/100); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.strokeStyle=accent; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.stroke();
+  vals.forEach((v,i)=>{ const x=padL+stepX*i, y=padT+ch*(1-v/100); ctx.beginPath(); ctx.arc(x,y,3.5,0,7); ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.stroke(); });
+}
+$('#dyExportImg').onclick=()=>{
+  const src=$('#dailyChart');
+  if(src.style.display==='none'){ showToast('暂无可导出数据','先记几条带进度的日报'); return; }
+  const off=document.createElement('canvas'); off.width=src.width; off.height=src.height;
+  const octx=off.getContext('2d');
+  octx.fillStyle='#ffffff'; octx.fillRect(0,0,off.width,off.height);
+  octx.drawImage(src,0,0);
+  const a=document.createElement('a'); a.href=off.toDataURL('image/png');
+  a.download=`施工进度趋势_${dailyChartMode==='week'?'按周':'按月'}_${today()}.png`; a.click();
+  showToast('曲线图片已导出','可直接插入PPT/汇报');
+};
+
+/* ============ 总览 ============ */
+function renderOverview(){
+  const done=todos.filter(t=>t.done).length, todoPct=todos.length?Math.round(done/todos.length*100):0;
+  const tt=plans.reduce((s,p)=>s+p.target,0), tc=plans.reduce((s,p)=>s+Math.min(p.current,p.target),0), studyPct=tt?Math.round(tc/tt*100):0;
+  const waterPct=Math.min(Math.round(water.count/water.goal*100),100);
+  const ta=accs.filter(a=>a.date===today());
+  const exp=ta.filter(a=>a.type==='exp').reduce((s,a)=>s+a.amount,0);
+  const inc=ta.filter(a=>a.type==='inc').reduce((s,a)=>s+a.amount,0);
+  const cards=[
+    {cls:'todo',label:'✅ 待办完成',num:todoPct,bar:todoPct,sub:`${done}/${todos.length} 项`},
+    {cls:'study',label:'📚 学习计划',num:studyPct,bar:studyPct,sub:`${tc}/${tt} 量`},
+    {cls:'pomo',label:'🍅 今日番茄',num:pomo.count,bar:Math.min(pomo.count/8*100,100),sub:`专注 ${pomo.focus} 分`},
+    {cls:'acc',label:'💰 今日支出',num:exp,bar:Math.min(exp/200*100,100),sub:`收入 ¥${inc}`},
+    {cls:'water',label:'💧 喝水完成',num:waterPct,bar:waterPct,sub:`${water.count}/${water.goal} 杯`},
+    {cls:'focus',label:'⏱ 累计专注',num:pomo.focus,bar:Math.min(pomo.focus/120*100,100),sub:'分钟'},
+    {cls:'work',label:'🏗 巡检打卡',num:inspects.length,bar:Math.min(inspects.length/5*100,100),sub:`异常 ${inspects.filter(r=>r.result!=='正常').length} 项`},
+  ];
+  const grid=$('#ovGrid'); grid.innerHTML='';
+  cards.forEach((c,i)=>{
+    const el=document.createElement('div'); el.className='stat '+c.cls+' stagger'; el.style.animationDelay=(i*0.07)+'s';
+    el.innerHTML=`<div class="label">${c.label}</div><div class="num">0</div><div class="bar"><i style="width:0"></i></div><div class="sub2">${c.sub}</div>`;
+    grid.appendChild(el);
+    setTimeout(()=>{ el.querySelector('.bar i').style.width=c.bar+'%'; },100+i*70);
+    setTimeout(()=>countUp(el.querySelector('.num'), c.num), 100+i*70);
+  });
+  const tot=exp+inc||1;
+  $('#donutExp').style.strokeDashoffset=377*(1-exp/tot);
+  $('#donutInc').style.strokeDashoffset=377*(1-inc/tot);
+  $('#legExp').textContent='¥'+exp.toFixed(0); $('#legInc').textContent='¥'+inc.toFixed(0); $('#legNet').textContent='¥'+(inc-exp).toFixed(0);
+  $('#hv-water').textContent=`${water.count}/${water.goal} 杯`; $('#hp-water').style.width=waterPct+'%';
+  $('#hv-todo').textContent=`${done}/${todos.length}`; $('#hp-todo').style.width=todoPct+'%';
+  $('#hv-pomo').textContent=`${pomo.count} 个`; $('#hp-pomo').style.width=Math.min(pomo.count/8*100,100)+'%';
+  $('#hv-work').textContent=`${inspects.length} 次`; $('#hp-work').style.width=Math.min(inspects.length/5*100,100)+'%';
+}
+
+/* ============ 角标 ============ */
+function refreshBadges(){
+  $('#b-todo').textContent=todos.filter(t=>!t.done).length;
+  $('#b-study').textContent=plans.length;
+  $('#b-pomo').textContent=pomo.count;
+  $('#b-acc').textContent=accs.length;
+  $('#b-water').textContent=water.count+'/'+water.goal;
+  $('#b-work').textContent=inspects.length+works.length+dailys.length;
+  $('#b-overview').textContent='7';
+}
+
+/* ============ 导出 Excel ============ */
+function exportExcel(){
+  const row=(a)=>'<tr>'+a.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>';
+  const sheet=(name,headers,data)=>`<table><tr><th colspan="${headers.length}" style="background:#6366f1;color:#fff;font-size:14px;padding:6px">${name}</th></tr>${row(headers)}${data.map(row).join('')}</table><br>`;
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>
+    ${sheet('今日待办',['内容','状态','日期'],[...todos].reverse().map(t=>[t.text,t.done?'已完成':'未完成','今天']))}
+    ${sheet('学习计划',['内容','当前','目标','单位'],[...plans].map(p=>[p.title,p.current,p.target,p.unit]))}
+    ${sheet('记账明细',['类型','分类','金额','备注','日期'],[...accs].reverse().map(a=>[a.type==='inc'?'收入':'支出',a.cat,a.amount,a.note,a.date]))}
+    ${sheet('巡检打卡',['巡检点','结果','备注','时间'],[...inspects].reverse().map(r=>[r.point,r.result,r.note,r.time]))}
+    ${sheet('工时统计',['日期','工序','人数','工时(h)'],[...works].reverse().map(r=>[r.date,r.type,r.people,r.hours]))}
+    ${sheet('喝水记录',['日期','杯数','目标杯','进度'],[[water.date,water.count,water.goal,Math.round(water.count/water.goal*100)+'%']])}
+    ${sheet('施工日报',['日期','施工部位','进度%','应到','实到','工作内容'],[...dailys].reverse().map(r=>[r.date,r.part,r.prog,r.should,r.actual,r.content]))}
+  </body></html>`;
+  const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`龙飞工作台_${today()}.xls`; a.click();
+  showToast('Excel 已导出','包含所有板块数据');
+}
+$('#btnExcel').onclick=exportExcel;
+$('#btnPdf').onclick=()=>{ showToast('正在调起打印','在打印窗口选择“另存为PDF”即可'); setTimeout(()=>window.print(),400); };
+
+/* ============ 备份 / 恢复（手动同步） ============ */
+$('#btnBackupOut').onclick=()=>{
+  const data={v:1, exportedAt:new Date().toISOString(), theme:document.documentElement.getAttribute('data-theme'),
+    todos, plans, pomo, accs, water, inspects, works, dailys};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`龙飞工作台备份_${today()}.json`; a.click();
+  showToast('备份已导出','用微信发到手机，手机端点“恢复”导入');
+};
+$('#btnBackupIn').onclick=()=>{ $('#backupFile').click(); };
+$('#backupFile').onchange=()=>{
+  const f=$('#backupFile').files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(d.todos){todos=d.todos;save('todos',todos);}
+      if(d.plans){plans=d.plans;save('plans',plans);}
+      if(d.pomo){pomo=d.pomo;save('pomo',pomo);}
+      if(d.accs){accs=d.accs;save('accs',accs);}
+      if(d.water){water=d.water;save('water',water);}
+      if(d.inspects){inspects=d.inspects;save('inspects',inspects);}
+      if(d.works){works=d.works;save('works',works);}
+      if(d.dailys){dailys=d.dailys;save('dailys',dailys);}
+      if(d.theme) applyTheme(d.theme);
+      renderTodos(); renderPlans(); renderPomo(); renderCats(); renderAccs(); renderWater(); renderWork(); renderOverview(); refreshBadges();
+      showToast('恢复成功','数据已从备份载入');
+    }catch(e){ showToast('恢复失败','文件不是有效备份'); }
+    $('#backupFile').value='';
+  };
+  r.readAsText(f);
+};
+
+/* 初始化 */
+renderTodos(); renderPlans(); refreshBadges(); renderOverview();
+</script>
+<!-- 同步设置弹窗 -->
+<div class="modal-mask" id="syncMask">
+  <div class="modal">
+    <div class="modal-head"><span>🔄 云端同步设置</span><button class="modal-x" id="syncClose">✕</button></div>
+    <div class="modal-body">
+      <p class="sync-tip">开启后，本机数据会按集合实时同步到您自己的同步服务器，手机/电脑输入同一「服务器 + 项目 + 口令」即可自动一致。数据存于您运行的服务器本地。</p>
+      <label class="sync-row"><span>启用同步</span>
+        <label class="switch"><input type="checkbox" id="syncOn"><span></span></label>
+      </label>
+      <label class="sync-field">同步服务器地址
+        <input type="text" id="syncUrl" placeholder="http://你的服务器IP:8787" style="width:100%">
+      </label>
+      <label class="sync-field">项目名称（多项目隔离）
+        <input type="text" id="syncProj" placeholder="龙飞电气-许昌项目" style="width:100%">
+      </label>
+      <label class="sync-field">同步口令（首次连接即设定，两端须一致）
+        <input type="password" id="syncPass" placeholder="设置一个同步口令" style="width:100%">
+      </label>
+      <div class="sync-status" id="syncStatus">未连接</div>
+      <div class="sync-btns">
+        <button class="btn sm" id="syncSave">保存设置</button>
+        <button class="btn ghost sm" id="syncNow">立即同步</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

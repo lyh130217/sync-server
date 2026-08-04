@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: longfei-workbench-sync
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: "echo skip-build"
+    startCommand: "node server.js"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: wbdata
+      mountPath: /data
+      sizeGB: 1

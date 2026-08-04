@@ -1,0 +1,14 @@
+{
+  "name": "longfei-workbench-sync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "龙飞个人工作台 - 同步后端 + 静态托管（零依赖 Node）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
