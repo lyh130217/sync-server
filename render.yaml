@@ -1,3 +1,7 @@
+# Render Blueprint 配置（长期常驻同步后端）
+# 注意：Render 免费版(Free)不支持持久磁盘，故此处不挂 disk；
+# 数据写在服务当前目录 ./data，重启/重新部署会重置，
+# 但客户端浏览器 localStorage 始终是数据真源，重新同步即可恢复。
 services:
   - type: web
     name: longfei-workbench-sync
@@ -7,12 +11,3 @@ services:
     buildCommand: "echo skip-build"
     startCommand: "node server.js"
     healthCheckPath: /api/health
-    envVars:
-      - key: PORT
-        value: "10000"
-      - key: DATA_DIR
-        value: /data
-    disk:
-      name: wbdata
-      mountPath: /data
-      sizeGB: 1
