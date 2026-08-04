@@ -623,7 +623,7 @@
 
   <div id="toastBox"></div>
 
-<script>
+<script defer>
 /* ============ 工具 ============ */
 const today = () => new Date().toISOString().slice(0,10);
 const $ = s => document.querySelector(s);
@@ -636,6 +636,7 @@ function save(k, v){
 
 /* ============ 云端同步层 ============ */
 const SYNC_KEYS = ['todos','plans','pomo','accs','water','inspects','works','dailys','theme'];
+function syncBase(){ const u=(sync.url||location.origin); return u.endsWith('/')?u.slice(0,-1):u; }
 const sync = load('sync', {enabled:false, url:'', project:'龙飞电气-许昌项目', pass:''});
 let syncRev = load('syncrev', {});
 let pushTimer = null, pushing = false;
@@ -671,7 +672,7 @@ async function pushNow(){
   if(pushing || !sync.enabled) return; pushing = true;
   try{
     const body = JSON.stringify({pass:sync.pass, revs:syncRev, data:syncState()});
-    const res = await fetch(sync.url.replace(/\/$/,'')+'/api/'+encodeURIComponent(sync.project), {method:'POST', headers:{'Content-Type':'application/json'}, body});
+    const res = await fetch(syncBase()+'/api/'+encodeURIComponent(sync.project), {method:'POST', headers:{'Content-Type':'application/json'}, body});
     if(!res.ok){ const e=await res.json().catch(()=>({})); setSyncStatus(res.status===403?'口令错误':(e.error||'同步失败'),'err'); return; }
     applyRemote(await res.json());
     setSyncStatus('已同步 · '+new Date().toLocaleTimeString('zh-CN'),'ok');
@@ -682,7 +683,7 @@ async function pushNow(){
 async function pullNow(){
   if(!sync.enabled) return;
   try{
-    const url = sync.url.replace(/\/$/,'')+'/api/'+encodeURIComponent(sync.project)+'?pass='+encodeURIComponent(sync.pass);
+    const url = syncBase()+'/api/'+encodeURIComponent(sync.project)+'?pass='+encodeURIComponent(sync.pass);
     const res = await fetch(url);
     if(!res.ok){ const e=await res.json().catch(()=>({})); setSyncStatus(res.status===403?'口令错误':(e.error||'拉取失败'),'err'); return; }
     const changed = applyRemote(await res.json());
@@ -1204,12 +1205,12 @@ renderTodos(); renderPlans(); refreshBadges(); renderOverview();
   <div class="modal">
     <div class="modal-head"><span>🔄 云端同步设置</span><button class="modal-x" id="syncClose">✕</button></div>
     <div class="modal-body">
-      <p class="sync-tip">开启后，本机数据会按集合实时同步到您自己的同步服务器，手机/电脑输入同一「服务器 + 项目 + 口令」即可自动一致。数据存于您运行的服务器本地。</p>
+      <p class="sync-tip">开启后，本机数据会按集合实时同步到您自己的同步服务器，手机/电脑输入同一「服务器 + 项目 + 口令」即可自动一致。数据存于您运行的服务器本地。<br>若工作台与同步服务部署在同一地址（服务器托管了前端），「同步服务器地址」留空即可自动同源，无需填写。</p>
       <label class="sync-row"><span>启用同步</span>
         <label class="switch"><input type="checkbox" id="syncOn"><span></span></label>
       </label>
       <label class="sync-field">同步服务器地址
-        <input type="text" id="syncUrl" placeholder="http://你的服务器IP:8787" style="width:100%">
+        <input type="text" id="syncUrl" placeholder="留空=与当前工作台同源（推荐部署到同一服务器）" style="width:100%">
       </label>
       <label class="sync-field">项目名称（多项目隔离）
         <input type="text" id="syncProj" placeholder="龙飞电气-许昌项目" style="width:100%">
